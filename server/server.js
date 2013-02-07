@@ -46,10 +46,11 @@ function insertDocument (doc) {
   }).run();
 }
 
-function removeDocument (id) {
+function removeOne () {
   Fiber(function () {
+    var id = DocumentCollection.findOne({is_visible: true})._id;
     DocumentCollection.remove({_id: id});
-  });
+  }).run();
 }
 
 function seedDb () {
