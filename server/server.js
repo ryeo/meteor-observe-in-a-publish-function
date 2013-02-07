@@ -14,6 +14,28 @@ Meteor.publish("documents_count", function () {
       isVisibleCursor,
       observerHandle;
 
+  isVisibleCursor = DocumentCollection.find({is_visible: true});
+
+  observerHandle = isVisibleCursor.observe({
+    added: function (doc, idx) {
+      count++;
+      subscription.set("documents_count", docId, { count: count });
+      subscription.flush();
+    },
+
+    removed: function (doc, idx) {
+      count--;
+      subscription.set("documents_count", docId, { count: count });
+      subscription.flush();
+    }
+  });
+
+  subscription.onStop(function () {
+    observerHandle.stop();
+  });
+
+  subscription.complete();
+  subscription.flush();
 });
 
 /* Server side helper functions */
