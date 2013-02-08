@@ -10,7 +10,6 @@ Meteor - Observe in a Publish Function
 ###Node Inspector Instructions
 
 1. Install Node Inspector
-
 ```
 > npm install -g node-inspector
 ```
