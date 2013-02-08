@@ -1,25 +1,26 @@
-In the "Observing Cursors" screencast we looked at how cursor observers work. If
-you haven't seen it already, it will help you understand this episode. In this
-screencast we're going to see how observers work inside a publish function on
-the server. We'll also be looking at DDP messages, so if you haven't seen the
-Subscriptions and DDP screencast yet, you might want to check that out too.
+In the "Observing Cursors" screencast we looked at how cursor observers work.
+If you haven't seen it already, it will help you understand this episode. In
+this screencast we're going to see how observers work inside a publish function
+on the server. We'll also be looking at DDP messages, so if you haven't seen
+the Subscriptions and DDP screencast yet, you might want to check that out too.
 
-To start, I've created a Meteor project project that only has a server. We won't
-be working with a browser client today.
+To start, I've created a Meteor project that only has a server. We
+won't be working with a browser client today.
 
 In the server.js file we're going to be working with a collection of documents
 that have an "is_visible" property which can be true or false. First I create
-the Meteor Collection called "documents" and assign it to the DocumentCollection
-variable.
+the Meteor Collection called "documents" and assign it to the
+DocumentCollection variable.
 
 Then I have a boilerplate publish function that we'll finish in a second. The
-publication is called "documents_count" and we'll be publishing messages to show
-when the number of visible documents in the documents collection has changed.
+publication is called "documents_count" and we'll be publishing messages to
+show when the number of visible documents in the documents collection has
+changed.
 
 Then I have two helper functions that will help me insert and remove documents
 from the server side debugger we'll be using. You don't need to worry about how
-this works, but since we're on the server we need to wrap our Mongo calls inside
-a Fiber.
+this works, but since we're on the server we need to wrap our Mongo calls
+inside a Fiber.
 
 Finally, I'll start us off by seeding the database with two visible documents
 and one invisible document.
@@ -33,24 +34,23 @@ clear that what's being returned is a cursor and not the actual results of a
 query.
 
 Next, I'll call the observe method and assign the result to the observeHandle
-variable. When the subscriber unsubscribes we want the server to stop firing the
-observer callbacks so we'll take care of that by calling the "stop" method on
-the observerHandle.
+variable. When the subscriber unsubscribes we want the server to stop firing
+the observer callbacks so we'll take care of that by calling the "stop" method
+on the observerHandle.
 
 Inside the observe method we'll create our callbacks. 
 
-In the "added" callback
-we'll start off by incrementing our counter by one. You can see the counter
-variable is defined above and it starts off at 0. Next, we'll call the "set"
-method of the subscription. From the DDP screencast you should rememmber that
-the set method takes the name of the collection as the first parameter, the id
-of a document as the second, and an object of fields as the third. We'll just
-set one field called "count" to the value of our count variable. Finally, I need
-to call the "flush" method of the subscription. This tells Meteor to send my
-messages to the client.
+In the "added" callback we'll start off by incrementing our counter by one. You
+can see the counter variable is defined above and it starts off at 0. Next,
+we'll call the "set" method of the subscription. From the DDP screencast you
+should rememmber that the set method takes the name of the collection as the
+first parameter, the id of a document as the second, and an object of fields as
+the third. We'll just set one field called "count" to the value of our count
+variable. Finally, I need to call the "flush" method of the subscription. This
+tells Meteor to send my messages to the client.
 
-In the "removed" callback we'll decrement our counter by one, and create another
-set message before calling flush to send the message to the client.
+In the "removed" callback we'll decrement our counter by one, and create
+another set message before calling flush to send the message to the client.
 
 One last thing we need to do. Down at the bottom we'll create a "completed"
 message by calling the "complete" method of the subscription. And then we'll
@@ -63,8 +63,8 @@ On top I'm using the Chrome debugger server side using an awesome tool called
 Node Inspector. I'll explain how to set that up in the show notes. But for now,
 just remember the code up top is running on the server not the client.
 
-In the debugger, I've opened the server.js file that we just wrote so we can set
-some breakpoints in the "documents_count" publish function.
+In the debugger, I've opened the server.js file that we just wrote so we can
+set some breakpoints in the "documents_count" publish function.
 
 On the bottom I'm going to fire up a DDP client that subscribes to the
 documents_count collection and prints the messages to the console.
@@ -73,8 +73,8 @@ Let's set a breakpoint on the observerHandle, and set another one where we set
 the subsription complete message.
 
 Now we'll start the DDP client. You can see we're connected and when we
-subscribe to the "documents_count" collection we get dumped into the server side
-debugger.
+subscribe to the "documents_count" collection we get dumped into the server
+side debugger.
 
 If I press play I can see that when the observe function returns, two DDP
 messages have been sent, one for each added document. You can see the count
@@ -92,14 +92,14 @@ queued and flushed to the client. We can see that message below in our DDP
 client.
 
 Next, let's try inserting a document whose is_visible property is false. Notice
-no DDP message is sent to the client. This is because the "added" callback is on
-a cursor that only matches documents whose is_visible property is true. So this
-cursor isn't affected by the new document.
+no DDP message is sent to the client. This is because the "added" callback is
+on a cursor that only matches documents whose is_visible property is true. So
+this cursor isn't affected by the new document.
 
 Finally, let's remove one of the is_visible documents. This time, the "removed"
-callback above, decrements the count variable by one, queues another set message
-and flushes the message to the client. We can see in our DDP client that the
-count is now three.
+callback above, decrements the count variable by one, queues another set
+message and flushes the message to the client. We can see in our DDP client
+that the count is now three.
 
 So far, we've seen how we can use observers in a publish function. But how does
 Meteor deal with regular cursors? Let's find out.
@@ -117,9 +117,9 @@ complete messages are sent to the client.
 If I insert a visible document you can see another set message is sent to the
 client. And if I remove a visible document, an unset message is sent.
 
-So how does Meteor do this? Well it turns out, it uses observers just like we've
-been doing so far. But Meteor does it automatically. To see it, let's jump into
-the debugger again.
+So how does Meteor do this? Well it turns out, it uses observers just like
+we've been doing so far. But Meteor does it automatically. To see it, let's
+jump into the debugger again.
 
 But this time instead of just pressing play in the debugger, I'll open up the
 Call Stack menu and take a look at the the function that wraps this one. It's a
@@ -139,11 +139,11 @@ and "removed" events of the cursor.
 
 I've set another breakpoint so we can press play and see the DDP messages. When
 I do that you can see the two "set" messages sent to the client. Then Meteor
-queues up a complete message and calls "flush" to send it to the client.
+queues up a complete message and calls "flush" to send it to the client just like we did before.
 
-To conclude, there are two important takeaways. First, the observer framework can be used
-directly to listen for changes that affect a cursor. Second, inside a publish
-function you can call the "set" and "unset" methods inside these callbacks to
-send DDP messages. Finally, when you return a cursor inside a publish function,
-Meteor uses the same observer framework under the covers to publish changes to
-subscribed clients.
+To conclude, there are three important takeaways. First, the observer framework
+can be used directly to listen for changes that affect a cursor. Second, inside
+a publish function you can call the "set" and "unset" methods inside these
+callbacks to send DDP messages. Finally, when you return a cursor inside a
+publish function, Meteor uses the same observer framework under the covers to
+publish changes to subscribed clients.
