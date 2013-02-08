@@ -32,3 +32,5 @@ Meteor - Observe in a Publish Function
 ###DDP Client Instructions
 
 Watch the Subscriptions and DDP screencast for instructions on how to set up a simple DDP client.
+
+http://www.eventedmind.com/posts/meteor-subscriptions-and-ddp
